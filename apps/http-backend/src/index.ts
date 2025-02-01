@@ -1,6 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "@repo/backend-common/config";
+import bcrypt from "bcrypt";
+import { JWT_SECRET, SALT_ROUNDS } from "@repo/backend-common/config";
 import { middleware } from "./middleware";
 import { prismaClient } from "@repo/db/client";
 import {
@@ -28,10 +29,18 @@ app.post("/signup", async (req, res) => {
       return;
     }
 
+    let hashedPassword;
+    try {
+      hashedPassword = await bcrypt.hash(parsedData.data.password, SALT_ROUNDS);
+    } catch (hashError) {
+      res.status(500).json({ error: "Error hashing password" });
+      return;
+    }
+
     const user = await prismaClient.user.create({
       data: {
         email: parsedData.data.username,
-        password: parsedData.data.password,
+        password: hashedPassword,
         name: parsedData.data.name,
       },
     });
@@ -49,7 +58,6 @@ app.post("/signin", async (req, res) => {
   }
 
   try {
-    // TODO: Compare hashed password
     const user = await prismaClient.user.findUnique({
       where: { email: parsedData.data.username },
     });
@@ -59,7 +67,18 @@ app.post("/signin", async (req, res) => {
       return;
     }
 
-    if (user.password !== parsedData.data.password) {
+    let passwordMatch;
+    try {
+      passwordMatch = await bcrypt.compare(
+        parsedData.data.password,
+        user.password
+      );
+    } catch (compareError) {
+      res.status(500).json({ error: "Error comparing password" });
+      return;
+    }
+
+    if (!passwordMatch) {
       res.status(401).json({ error: "Not authorized" });
       return;
     }
