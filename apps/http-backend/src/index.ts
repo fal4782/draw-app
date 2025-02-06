@@ -121,4 +121,40 @@ app.post("/room", middleware, async (req, res) => {
   }
 });
 
-app.listen(3200);
+app.get("/chats/:roomId", middleware, async (req, res) => {
+  const roomId = Number(req.params.roomId);
+  if (isNaN(roomId)) {
+    res.status(400).json({ error: "Invalid room ID" });
+    return;
+  }
+
+  try {
+    const room = await prismaClient.room.findUnique({
+      where: {
+        id: roomId,
+      },
+    });
+
+    if (!room) {
+      res.status(404).json({ error: "Room not found" });
+      return;
+    }
+
+    const messages = await prismaClient.chat.findMany({
+      where: {
+        roomId: roomId,
+      },
+      orderBy: {
+        id: "desc",
+      },
+      take: 50,
+    });
+    res.json(messages);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.listen(3200, () => {
+  console.log("Server is running on port 3200");
+});
