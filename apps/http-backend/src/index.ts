@@ -155,6 +155,25 @@ app.get("/chats/:roomId", middleware, async (req, res) => {
   }
 });
 
+app.get("room/:slug", middleware, async (req, res) => {
+  const slug = req.params.slug;
+  try {
+    const room = await prismaClient.room.findUnique({
+      where: {
+        slug,
+      },
+    });
+    if (!room) {
+      res.status(404).json({ error: "Room not found" });
+      return;
+    }
+    res.json({
+      room,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 app.listen(3200, () => {
   console.log("Server is running on port 3200");
 });
