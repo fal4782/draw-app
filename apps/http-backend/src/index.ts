@@ -121,7 +121,7 @@ app.post("/room", middleware, async (req, res) => {
   }
 });
 
-app.get("/chats/:roomId", middleware, async (req, res) => {
+app.get("/chats/:roomId", async (req, res) => {
   const roomId = Number(req.params.roomId);
   if (isNaN(roomId)) {
     res.status(400).json({ error: "Invalid room ID" });
@@ -145,7 +145,7 @@ app.get("/chats/:roomId", middleware, async (req, res) => {
         roomId: roomId,
       },
       orderBy: {
-        id: "desc",
+        id: "asc",
       },
       take: 50,
     });
@@ -155,7 +155,7 @@ app.get("/chats/:roomId", middleware, async (req, res) => {
   }
 });
 
-app.get("room/:slug", middleware, async (req, res) => {
+app.get("/room/:slug", async (req, res) => {
   const slug = req.params.slug;
   try {
     const room = await prismaClient.room.findUnique({
@@ -163,6 +163,8 @@ app.get("room/:slug", middleware, async (req, res) => {
         slug,
       },
     });
+    console.log(room);
+
     if (!room) {
       res.status(404).json({ error: "Room not found" });
       return;

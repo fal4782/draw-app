@@ -42,7 +42,8 @@ wss.on("connection", (ws, request) => {
 
   const userId = checkUser(token);
   if (!userId) {
-    ws.close();
+    ws.send("Invalid token");
+    setTimeout(() => ws.close(), 100);
     return;
   }
   // Add the user to the global users array
