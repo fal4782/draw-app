@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import { JWT_SECRET, SALT_ROUNDS } from "@repo/backend-common/config";
 import { middleware } from "./middleware";
 import { prismaClient } from "@repo/db/client";
+import cors from "cors";
 import {
   CreateUserSchema,
   SignInSchema,
@@ -11,6 +12,7 @@ import {
 } from "@repo/common/types";
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {

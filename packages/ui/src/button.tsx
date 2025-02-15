@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import { twMerge } from "tailwind-merge";
 
 interface ButtonProps {
   variant: "primary" | "secondary" | "outline";
@@ -8,6 +9,7 @@ interface ButtonProps {
   className?: string;
   size: "lg" | "sm";
   onClick?: () => void;
+  type?: "button" | "submit" | "reset";
 }
 
 export const Button = ({
@@ -16,10 +18,15 @@ export const Button = ({
   className,
   onClick,
   children,
+  type = "button",
 }: ButtonProps) => {
   return (
     <button
-      className={`${className} ${variant === "primary" ? "bg-primary" : ""} ${size === "lg" ? "px-4 py-2" : "px-2 py-1"}`}
+      type={type}
+      className={twMerge(
+        `${variant === "primary" ? "bg-primary" : ""} ${size === "lg" ? "px-4 py-2" : "px-2 py-1"}`,
+        className
+      )}
       onClick={onClick}
     >
       {children}
