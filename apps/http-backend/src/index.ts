@@ -151,7 +151,7 @@ app.get("/chats/:roomId", async (req, res) => {
       },
       take: 50,
     });
-    res.json(messages);
+    res.json({ messages });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }

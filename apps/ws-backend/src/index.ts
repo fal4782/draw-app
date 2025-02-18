@@ -54,7 +54,12 @@ wss.on("connection", (ws, request) => {
   });
 
   ws.on("message", async (data) => {
-    const parsedData = JSON.parse(data as unknown as string);
+    let parsedData;
+    if (typeof data !== "string") {
+      parsedData = JSON.parse(data.toString());
+    } else {
+      parsedData = JSON.parse(data);
+    }
     // Join room
     if (parsedData.type === "join_room") {
       const user = users.find((user) => user.ws === ws); // Find the user by their WebSocket connection in the global users array
